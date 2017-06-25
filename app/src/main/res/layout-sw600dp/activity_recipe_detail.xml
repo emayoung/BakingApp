@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:tools="http://schemas.android.com/tools"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:baselineAligned="false"
+android:orientation="horizontal"
+tools:context=".RecipeDetailActivity"
+    android:background="@color/colorPrimaryDark">
+
+<!--
+This layout is a two-pane layout for the master/detail flow.
+-->
+
+<FrameLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/master_list_fragment"
+        android:layout_width="300dp"
+        android:layout_height="match_parent" />
+
+<!-- A small divider -->
+<View
+    android:layout_width="1dp"
+    android:layout_height="match_parent"
+    android:background="@android:color/white" />
+
+<!-- LinearLayout that arranges all three Android-Me body part images vertically -->
+<LinearLayout
+    android:id="@+id/second_fragment_linear_layout"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:layout_gravity="center_vertical"
+    android:background="@color/colorPrimaryDark"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin">
+
+    <FrameLayout
+        android:id="@+id/steps_and_ingredient_instruction_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerInside"/>
+
+
+
+</LinearLayout>
+
+</LinearLayout>
