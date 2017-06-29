@@ -3,6 +3,8 @@ package androiddegree.udacity.ememobong.bakingapp.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.annotations.SerializedName;
+
 import static android.R.attr.id;
 
 /**
@@ -10,8 +12,11 @@ import static android.R.attr.id;
  */
 
 public class Ingredients implements Parcelable{
+    @SerializedName("quantity")
     Double quantity;
+    @SerializedName("measure")
     String measure;
+    @SerializedName("ingredient")
     String ingredients;
 
     public Ingredients(Double quantity, String measure, String ingredients) {

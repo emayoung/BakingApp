@@ -1,5 +1,6 @@
 package androiddegree.udacity.ememobong.bakingapp.widget;
 
+import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
@@ -7,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
@@ -18,6 +20,7 @@ import androiddegree.udacity.ememobong.bakingapp.R;
 import androiddegree.udacity.ememobong.bakingapp.RecipeDetailActivity;
 import androiddegree.udacity.ememobong.bakingapp.model.PreparationSteps;
 import androiddegree.udacity.ememobong.bakingapp.model.Recipe;
+import androiddegree.udacity.ememobong.bakingapp.service.ListWidgetService;
 import androiddegree.udacity.ememobong.bakingapp.service.UpdateWithNextRecipeService;
 
 import static androiddegree.udacity.ememobong.bakingapp.ui.RecipeCardAdapter.PARCEABLE_RECIPE_KEY;
@@ -29,24 +32,25 @@ public class RecipeProviderWidget extends AppWidgetProvider {
 
     public static final String PARCEABLE_RECIPE_KEY = "parcelable";
 
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
                                 String nextWidgetInfo,
                                 Recipe recipe,
                                 int appWidgetId) {
 
-        Intent intent = new Intent(context, RecipeDetailActivity.class);
-        intent.putExtra(PARCEABLE_RECIPE_KEY, recipe);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
-
-        int id = recipe.getId();
-        // Construct the RemoteViews object
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.recipe_provider_widget);
-        Bitmap imageHolder = BitmapFactory.decodeResource(context.getResources(),
-                R.drawable.ic_launcher);
-        views.setImageViewBitmap(R.id.widget_recipe_image, imageHolder);
-        views.setTextViewText(R.id.next_instructionWidget, nextWidgetInfo);
-        views.setOnClickPendingIntent(R.id.widget_recipe_image, pendingIntent);
+        // Set the ListWidgetService intent to act as the adapter for the ListView
+        Intent intent = new Intent(context, ListWidgetService.class);
+        views.setRemoteAdapter(R.id.widget_list_view, intent);
+        // Set the PlantDetailActivity intent to launch when clicked
+        Intent appIntent = new Intent(context, RecipeDetailActivity.class);
+        intent.putExtra(PARCEABLE_RECIPE_KEY, recipe);
+        PendingIntent appPendingIntent = PendingIntent.getActivity(context, 0, appIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        views.setPendingIntentTemplate(R.id.widget_list_view, appPendingIntent);
+        // Handle empty gardens
+        views.setEmptyView(R.id.widget_list_view, R.id.widget_recipe_image);
 
+        // Construct the RemoteViews object
         // Instruct the widget manager to update the widget
         appWidgetManager.updateAppWidget(appWidgetId, views);
     }
@@ -58,6 +62,7 @@ public class RecipeProviderWidget extends AppWidgetProvider {
 
 
 //        extract and build the next info to be displayed in the widget
+        //this bit of code is redundant for now since the app logic has changed keeping it for review purposes
         int nextRecipeId = nextWidgetInfo[0];
         int nextRecipeStepId = nextWidgetInfo[1];
         String nextWidgetInfoStr = "";

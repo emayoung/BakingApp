@@ -2,6 +2,7 @@ package androiddegree.udacity.ememobong.bakingapp.ui;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -10,6 +11,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -53,16 +55,18 @@ public class RecipeCardAdapter   extends RecyclerView.Adapter<RecipeCardAdapter.
     @Override
     public void onBindViewHolder(ReceipeCardViewHolder holder, final int position) {
 
+        holder.imageView.setVisibility(View.VISIBLE);
+        holder.servingsTv.setVisibility(View.VISIBLE);
         setImageOnCard(holder.recipeCardImage, position);
         holder.receipeTextView.setText(recipes.get(position).getRecipeName());
         holder.receipeTextView.setContentDescription(recipes.get(position).getRecipeName());
+        holder.servingsTv.setText(""+ recipes.get(position).getServings());
         holder.setIsRecyclable(true);
 
         holder.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                DataBaseUtils.insertOrUpdateRecipeId(activity, recipes.get(position).getId());
-                UpdateWithNextRecipeService.startActionWaterPlants(activity);
+                new UpdateWidgetAsyncTask().execute(recipes.get(position).getId());
                 Intent intent = new Intent(activity, RecipeDetailActivity.class);
                 intent.putExtra(PARCEABLE_RECIPE_KEY, recipes.get(position));
                 activity.startActivity(intent);
@@ -102,12 +106,24 @@ public class RecipeCardAdapter   extends RecyclerView.Adapter<RecipeCardAdapter.
 
         @BindView(R.id.recipe_card_name) TextView receipeTextView;
         @BindView(R.id.recipe_card_image) ImageView recipeCardImage;
-        @BindView(R.id.floatingActionButton) FloatingActionButton fab;
+        @BindView(R.id.floatingActionButton) Button fab;
+        @BindView(R.id.serving_tv) TextView servingsTv;
+        @BindView(R.id.imageView) ImageView imageView;
         public ReceipeCardViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
 
         }
 
+    }
+
+    private class UpdateWidgetAsyncTask extends AsyncTask<Integer, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Integer... integers) {
+            DataBaseUtils.insertOrUpdateRecipeId(activity, integers[0]);
+            UpdateWithNextRecipeService.startActionWaterPlants(activity);
+            return null;
+        }
     }
 }

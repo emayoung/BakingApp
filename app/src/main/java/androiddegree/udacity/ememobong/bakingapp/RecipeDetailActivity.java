@@ -13,6 +13,7 @@ import androiddegree.udacity.ememobong.bakingapp.model.Recipe;
 import androiddegree.udacity.ememobong.bakingapp.ui.RecipeCardAdapter;
 import androiddegree.udacity.ememobong.bakingapp.ui.RecipeDetailCardAdapter;
 import androiddegree.udacity.ememobong.bakingapp.ui.RecipeDetailFragment;
+import androiddegree.udacity.ememobong.bakingapp.ui.RecipeIngredientFragment;
 import androiddegree.udacity.ememobong.bakingapp.ui.RecipeStepDetailFragment;
 
 public class RecipeDetailActivity extends AppCompatActivity  implements RecipeDetailCardAdapter.ReplaceFragment{
@@ -102,6 +103,21 @@ public class RecipeDetailActivity extends AppCompatActivity  implements RecipeDe
         recipeDetailFragment.setArguments(bundle);
         fragmentManager.beginTransaction()
                 .add(R.id.master_list_fragment, recipeDetailFragment)
+                .commit();
+    }
+
+    @Override
+    public void replaceWithIngredientFragment(int position) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(RecipeCardAdapter.PARCEABLE_RECIPE_KEY, recipe);
+        bundle.putInt(POSITION, position);
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        RecipeIngredientFragment recipeIngredientFragment = new RecipeIngredientFragment();
+        // Add the fragment to its container using a transaction
+        recipeIngredientFragment.setArguments(bundle);
+        fragmentManager.beginTransaction()
+                .replace(R.id.steps_and_ingredient_instruction_container, recipeIngredientFragment)
                 .commit();
     }
 

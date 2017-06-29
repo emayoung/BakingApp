@@ -3,12 +3,14 @@ package androiddegree.udacity.ememobong.bakingapp.ui;
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,6 +20,7 @@ import java.util.List;
 
 import androiddegree.udacity.ememobong.bakingapp.R;
 import androiddegree.udacity.ememobong.bakingapp.RecipeDetailActivity;
+import androiddegree.udacity.ememobong.bakingapp.RecipeIngredientsActivity;
 import androiddegree.udacity.ememobong.bakingapp.RecipeStepDetailActivity;
 import androiddegree.udacity.ememobong.bakingapp.model.PreparationSteps;
 import androiddegree.udacity.ememobong.bakingapp.model.Recipe;
@@ -44,7 +47,8 @@ public class RecipeDetailCardAdapter extends RecyclerView.Adapter<RecipeDetailCa
     }
 
     public interface ReplaceFragment{
-        public void replaceFragmentAtPosition(int position);
+       void replaceFragmentAtPosition(int position);
+        void replaceWithIngredientFragment(int position);
     }
 
     @Override
@@ -79,14 +83,9 @@ public class RecipeDetailCardAdapter extends RecyclerView.Adapter<RecipeDetailCa
 
                     if(position== 0){
 //                        inflate the recipe ingredients
-
+                        activity.replaceWithIngredientFragment(position -1);
                     }else{
-                        //                  help the widget to update it's details
-                        DataBaseUtils.updateRecipeStepId(activity, preparationSteps.get(position - 1).getId());
-                        UpdateWithNextRecipeService.startActionWaterPlants(activity);
-
 //          we should replace our fragment here
-
                         activity.replaceFragmentAtPosition(position -1);
                     }
 
@@ -94,10 +93,13 @@ public class RecipeDetailCardAdapter extends RecyclerView.Adapter<RecipeDetailCa
 
                     if (position == 0){
 //                        start an intent for recipe ingredient activity
+                        Intent intent = new Intent(activity, RecipeIngredientsActivity.class);
+                        intent.putExtra(RecipeCardAdapter.PARCEABLE_RECIPE_KEY, recipes);
+                        activity.startActivity(intent);
+                        activity.finish();
+
                     }else{
                         //                    adapter working in a single pane layout
-                        DataBaseUtils.updateRecipeStepId(activity, preparationSteps.get(position - 1).getId());
-                        UpdateWithNextRecipeService.startActionWaterPlants(activity);
                         Intent intent = new Intent(activity, RecipeStepDetailActivity.class);
                         intent.putExtra(RecipeCardAdapter.PARCEABLE_RECIPE_KEY, recipes);
                         intent.putExtra(POSITION, position -1);
@@ -146,8 +148,7 @@ public class RecipeDetailCardAdapter extends RecyclerView.Adapter<RecipeDetailCa
 
         @BindView(R.id.recipe_card_name) TextView receipeTextView;
         @BindView(R.id.recipe_card_image) ImageView recipeCardImage;
-        @BindView(R.id.floatingActionButton)
-        FloatingActionButton fab;
+        @BindView(R.id.floatingActionButton) Button fab;
         public ReceipeCardViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
@@ -155,4 +156,5 @@ public class RecipeDetailCardAdapter extends RecyclerView.Adapter<RecipeDetailCa
         }
 
     }
+
 }

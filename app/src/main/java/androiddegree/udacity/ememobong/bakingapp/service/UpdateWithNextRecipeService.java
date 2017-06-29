@@ -11,6 +11,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.util.List;
 
+import androiddegree.udacity.ememobong.bakingapp.R;
 import androiddegree.udacity.ememobong.bakingapp.model.Recipe;
 import androiddegree.udacity.ememobong.bakingapp.utils.DataBaseUtils;
 import androiddegree.udacity.ememobong.bakingapp.utils.JsonUtils;
@@ -53,11 +54,15 @@ public class UpdateWithNextRecipeService extends IntentService{
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+
         int[] nextWidgetInfo = DataBaseUtils.nextRecipeToWatch(this, recipes);
 
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
         int[] appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(this, RecipeProviderWidget.class));
         //Now update all widgets
+        //Trigger data update to handle the GridView widgets and force a data refresh
+        appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widget_list_view);
         Log.d("TAG", "we are redirecting to the recipe provider class to update the widget");
         RecipeProviderWidget.updateWidgetWithNextInfo(this, appWidgetManager, nextWidgetInfo, recipes, appWidgetIds);
     }

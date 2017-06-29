@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,12 +16,17 @@ import static android.R.attr.category;
  */
 
 public class Recipe implements Parcelable {
-
+    @SerializedName("id")
     Integer id;
+    @SerializedName("name")
     String recipeName;
+    @SerializedName("ingredients")
     ArrayList<Ingredients> recipeIngredients = new ArrayList<Ingredients>();
+    @SerializedName("steps")
     ArrayList<PreparationSteps> steps = new ArrayList<PreparationSteps>();
+    @SerializedName("servings")
     Integer servings;
+    @SerializedName("image")
     String imageUrl;
 
     private static final String INGREDIENT_KEY = "ingredients";

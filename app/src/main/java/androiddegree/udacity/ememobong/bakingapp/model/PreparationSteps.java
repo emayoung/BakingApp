@@ -3,16 +3,22 @@ package androiddegree.udacity.ememobong.bakingapp.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * Created by Bless on 6/16/2017.
  */
 
 public class PreparationSteps implements Parcelable {
-
+    @SerializedName("id")
     private Integer id ;
+    @SerializedName("shortDescription")
     private String shortDescription;
+    @SerializedName("description")
     private String description;
+    @SerializedName("videoURL")
     private String videoURL;
+    @SerializedName("thumbnailURL")
     private String thumbnailURL;
 
     public PreparationSteps(Integer id, String shortDescription, String description, String videoURL, String thumbnailURL) {

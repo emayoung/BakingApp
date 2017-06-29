@@ -7,14 +7,15 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+
 @RunWith(AndroidJUnit4.class)
 public class RecipeStepsActivityTest {
 
     @Rule
-    public ActivityTestRule<RecipeDetailActivity> mActivityTestRule = new ActivityTestRule<>(RecipeDetailActivity.class);
+    public ActivityTestRule<RecipeStepDetailActivity> mActivityTestRule = new ActivityTestRule<>(RecipeStepDetailActivity.class);
 
     @Test
-    public void clickGridViewItem_OpensOrderActivity() {
+    public void clickButton() {
 
     }
 
