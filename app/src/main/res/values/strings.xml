@@ -11,4 +11,5 @@
     <string name="quantity">Quantity: </string>
     <string name="internet">No Internet Connection</string>
     <string name="explore">Explore</string>
+    <string name="error_widget">No Item to Load</string>
 </resources>

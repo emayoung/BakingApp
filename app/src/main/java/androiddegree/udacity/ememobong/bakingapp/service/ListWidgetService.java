@@ -12,6 +12,7 @@ import android.widget.RemoteViewsService;
 import java.util.List;
 
 import androiddegree.udacity.ememobong.bakingapp.R;
+import androiddegree.udacity.ememobong.bakingapp.data.RecipeContract;
 import androiddegree.udacity.ememobong.bakingapp.model.Recipe;
 import androiddegree.udacity.ememobong.bakingapp.networking.ApiClient;
 import androiddegree.udacity.ememobong.bakingapp.networking.ApiInterface;
@@ -38,7 +39,7 @@ public class ListWidgetService extends RemoteViewsService {
         Context mContext;
         List<Recipe> recipes;
         int currentRecipeId = -1;
-        public static final String EXTRA_PLANT_ID = "extra_id";
+        public static final String EXTRA_RECIPE_ID = "extra_id";
 
         public ListRemoteViewsFactory(Context applicationContext) {
                     mContext = applicationContext;
@@ -53,7 +54,7 @@ public class ListWidgetService extends RemoteViewsService {
         @Override
         public void onDataSetChanged() {
             Log.d("TAG", "about to fetch the recipes for the list view");
-            if (recipes.isEmpty()){
+            if (recipes == null){
                 fetchDataFromServer();
             }
 
@@ -61,28 +62,26 @@ public class ListWidgetService extends RemoteViewsService {
 
         @Override
         public void onDestroy() {
-
+            recipes = null;
         }
 
         @Override
         public int getCount() {
             if(currentRecipeId == -1 && recipes == null) return 0;
             return recipes.get(currentRecipeId).getRecipeIngredients().size();
+
         }
 
         @Override
         public RemoteViews getViewAt(int position) {
+            Log.d("TAG", "entered getViewAt method of widget");
+            if(recipes == null) return null;
 
-            if(recipes.isEmpty()) return null;
-
-            RemoteViews views = new RemoteViews(mContext.getPackageName(), R.layout.recipe_fragment_detail_card);
-
+            RemoteViews views = new RemoteViews(mContext.getPackageName(), R.layout.recipe_provider_widget);
             views.setTextViewText(R.id.ingredient_name, recipes.get(currentRecipeId).getRecipeIngredients().get(position).getIngredients());
-            views.setTextViewText(R.id.measure_tv, mContext.getResources().getString(R.string.measure) + recipes.get(currentRecipeId).getRecipeIngredients().get(position).getMeasure());
-            views.setTextViewText(R.id.quantity_tv,mContext.getResources().getString(R.string.quantity) +  recipes.get(currentRecipeId).getRecipeIngredients().get(position).getQuantity());
 
             Bundle extras = new Bundle();
-            extras.putLong(EXTRA_PLANT_ID, 1);
+            extras.putLong(EXTRA_RECIPE_ID, position);
             Intent fillInIntent = new Intent();
             fillInIntent.putExtras(extras);
             views.setOnClickFillInIntent(R.id.ingredient_name, fillInIntent);

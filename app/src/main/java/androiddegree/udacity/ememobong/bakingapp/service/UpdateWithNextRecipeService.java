@@ -63,7 +63,8 @@ public class UpdateWithNextRecipeService extends IntentService{
         //Now update all widgets
         //Trigger data update to handle the GridView widgets and force a data refresh
         appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widget_list_view);
-        Log.d("TAG", "we are redirecting to the recipe provider class to update the widget");
+        Log.d("TAG", "we have called notifydatasetchanged for app widget");
+
         RecipeProviderWidget.updateWidgetWithNextInfo(this, appWidgetManager, nextWidgetInfo, recipes, appWidgetIds);
     }
 

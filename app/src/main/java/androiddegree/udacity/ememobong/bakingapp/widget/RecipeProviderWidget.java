@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
@@ -38,21 +39,32 @@ public class RecipeProviderWidget extends AppWidgetProvider {
                                 Recipe recipe,
                                 int appWidgetId) {
 
-        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.recipe_provider_widget);
         // Set the ListWidgetService intent to act as the adapter for the ListView
+
         Intent intent = new Intent(context, ListWidgetService.class);
+
+        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.recipe_listview_widget);
         views.setRemoteAdapter(R.id.widget_list_view, intent);
-        // Set the PlantDetailActivity intent to launch when clicked
+
         Intent appIntent = new Intent(context, RecipeDetailActivity.class);
         intent.putExtra(PARCEABLE_RECIPE_KEY, recipe);
         PendingIntent appPendingIntent = PendingIntent.getActivity(context, 0, appIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         views.setPendingIntentTemplate(R.id.widget_list_view, appPendingIntent);
         // Handle empty gardens
-        views.setEmptyView(R.id.widget_list_view, R.id.widget_recipe_image);
+        views.setEmptyView(R.id.widget_list_view, R.id.empty_widget_tv);
 
         // Construct the RemoteViews object
         // Instruct the widget manager to update the widget
+
         appWidgetManager.updateAppWidget(appWidgetId, views);
+    }
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    @Override
+    public void onAppWidgetOptionsChanged(Context context, AppWidgetManager appWidgetManager, int appWidgetId, Bundle newOptions) {
+        UpdateWithNextRecipeService.startActionWaterPlants(context);
+        super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions);
+
     }
 
     public static void updateWidgetWithNextInfo(Context context, AppWidgetManager appWidgetManager,
@@ -80,7 +92,6 @@ public class RecipeProviderWidget extends AppWidgetProvider {
                 }
             }
         }
-        Log.d("TAG", "this is the next info string we have been arguing about ever since " + nextWidgetInfoStr);
 
         for (int appWidgetId : appWidgetIds) {
             updateAppWidget(context, appWidgetManager,nextWidgetInfoStr, nextRecipe, appWidgetId);
