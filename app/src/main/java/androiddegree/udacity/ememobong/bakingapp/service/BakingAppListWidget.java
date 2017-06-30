@@ -2,7 +2,6 @@ package androiddegree.udacity.ememobong.bakingapp.service;
 
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -12,7 +11,7 @@ import android.widget.RemoteViewsService;
 import java.util.List;
 
 import androiddegree.udacity.ememobong.bakingapp.R;
-import androiddegree.udacity.ememobong.bakingapp.data.RecipeContract;
+import androiddegree.udacity.ememobong.bakingapp.model.Ingredients;
 import androiddegree.udacity.ememobong.bakingapp.model.Recipe;
 import androiddegree.udacity.ememobong.bakingapp.networking.ApiClient;
 import androiddegree.udacity.ememobong.bakingapp.networking.ApiInterface;
@@ -22,66 +21,63 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 /**
- * this class is now defunct
+ * Created by Bless on 6/30/2017.
  */
 
-public class ListWidgetService extends RemoteViewsService {
-
+public class BakingAppListWidget extends RemoteViewsService {
 
     @Override
     public RemoteViewsFactory onGetViewFactory(Intent intent) {
-        return  new ListRemoteViewsFactory(this.getApplicationContext());
+        return new ListViewRemoteViewsFactory(this.getApplicationContext());
     }
 
 
-    class ListRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
+    class ListViewRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
         Context mContext;
-        List<Recipe> recipes;
-        int currentRecipeId = -1;
-        public static final String EXTRA_RECIPE_ID = "extra_id";
+        List<Ingredients> ingredients;
+        int currentRecipeId;
 
-        public ListRemoteViewsFactory(Context applicationContext) {
-                    mContext = applicationContext;
+        ListViewRemoteViewsFactory(Context context){
+            mContext = context;
 
         }
         @Override
         public void onCreate() {
 
-
         }
-        //called on start and when notifyAppWidgetViewDataChanged is called
+
         @Override
         public void onDataSetChanged() {
-            Log.d("TAG", "about to fetch the recipes for the list view");
-            if (recipes == null){
+
+            if(ingredients == null){
                 fetchDataFromServer();
             }
-
         }
 
         @Override
         public void onDestroy() {
+            ingredients = null;
         }
 
         @Override
         public int getCount() {
-            if(currentRecipeId == -1 && recipes == null) return 0;
-            return recipes.get(currentRecipeId).getRecipeIngredients().size();
-
+            if(ingredients == null) return 0;
+            return ingredients.size();
         }
 
         @Override
         public RemoteViews getViewAt(int position) {
-            Log.d("TAG", "entered getViewAt method of widget");
-            if(recipes == null) return null;
 
-            RemoteViews views = new RemoteViews(mContext.getPackageName(), R.layout.recipe_provider_widget);
-            views.setTextViewText(R.id.ingredient_name, recipes.get(currentRecipeId).getRecipeIngredients().get(position).getIngredients());
+            if (ingredients == null) return null;
 
+            RemoteViews views = new RemoteViews(mContext.getPackageName(), R.layout.baking_app_widget);
+
+            views.setTextViewText(R.id.appwidget_text, ingredients.get(position).getIngredients());
+
+            // Fill in the onClick PendingIntent Template using the specific plant Id for each item individually
             Intent fillInIntent = new Intent();
-            views.setOnClickFillInIntent(R.id.ingredient_name, fillInIntent);
-
+            views.setOnClickFillInIntent(R.id.appwidget_text, fillInIntent);
             return views;
 
         }
@@ -118,9 +114,10 @@ public class ListWidgetService extends RemoteViewsService {
                 @Override
                 public void onResponse(Call<List<Recipe>> call, Response<List<Recipe>> response) {
                     Log.d("TAG", "response from server for list view is successful");
-                    recipes = response.body();
+                    List<Recipe> recipes = response.body();
                     int[] nextWidgetInfo = DataBaseUtils.nextRecipeToWatch(mContext, recipes);
                     currentRecipeId = nextWidgetInfo[0];
+                    ingredients = response.body().get(currentRecipeId).getRecipeIngredients();
                 }
 
                 @Override

@@ -42,7 +42,6 @@ public class DataBaseUtils {
                     cv,
                     null,
                     null);
-            Log.d("TAG", "we are updating the recipe id");
 
         }
         else {
@@ -51,7 +50,6 @@ public class DataBaseUtils {
             cv.put(RecipeContract.RecipesEntry.COLUMN_RECIPE_ID, recipeId);
             cv.put(RecipeContract.RecipesEntry.COLUMN_RECIPE_STEP_ID, 0);
             context.getContentResolver().insert(RecipeContract.RecipesEntry.CONTENT_URI, cv);
-            Log.d("TAG", "we are inserting  the recipe id");
 
         }
     }
@@ -75,7 +73,6 @@ public class DataBaseUtils {
                     cv,
                     null,
                     null);
-            Log.d("TAG", "we have updated the recipe step id" + recipeStepId);
 
         }
     }
@@ -106,13 +103,11 @@ public class DataBaseUtils {
                     maxRecipeStep = preparationSteps.size() -1;
                 }
             }
-            Log.d("TAG", "we are max recipe count for this recipe " + maxRecipeStep);
             /*check to see if we have not started watching any of the steps for a selected
             check to see if are watching if we are at the end of a recipe*/
 
             if(recipeStepId == 0){
 //                we have not yet began watching any step so our next step id thus
-                Log.d("TAG", "we have not yet began watching any recipe");
                 nextRecipe = recipeId;
                 nextRecipeStep = recipeStepId + 1;
 
@@ -123,7 +118,6 @@ public class DataBaseUtils {
                 nextRecipeStep = recipeStepId + 1;
             }
             else {
-                Log.d("TAG", "we have reached the max recipe id for the recipe " );
 //                we are done wathing the steps for that recipe
                 if (recipeId < 4){
                     nextRecipe = recipeId + 1;
@@ -134,7 +128,6 @@ public class DataBaseUtils {
             }
         }
 
-        Log.d("TAG", "this are the next steps of the recipe we want to watch " + nextRecipe + "  " + nextRecipeStep);
         return  new int[]{nextRecipe, nextRecipeStep};
     }
 

@@ -68,6 +68,7 @@ public class RecipeStepDetailFragment extends Fragment implements ExoPlayer.Even
     private long playerPosition;
 
     private String videoUrl;
+    private String imagerl;
     Recipe recipe;
     List<PreparationSteps> steps;
     int position = 0;
@@ -108,6 +109,7 @@ public class RecipeStepDetailFragment extends Fragment implements ExoPlayer.Even
 
         steps = recipe.getSteps();
         videoUrl = steps.get(position).getVideoURL();
+        imagerl = steps.get(position).getThumbnailURL();
 
         simpleExoPlayerView = (SimpleExoPlayerView) rootView.findViewById(R.id.player_view);
 
@@ -182,7 +184,15 @@ public class RecipeStepDetailFragment extends Fragment implements ExoPlayer.Even
                 MediaSource mediaSource = buildMediaSource(uri);
                 player.prepare(mediaSource, true, false);
                 player.setPlayWhenReady(true);
-            }else {
+            }
+            else if(!imagerl.isEmpty()){
+                Uri uri = Uri.parse(imagerl);
+
+                MediaSource mediaSource = buildMediaSource(uri);
+                player.prepare(mediaSource, true, false);
+                player.setPlayWhenReady(true);
+            }
+            else {
                 Bitmap imageHolder = BitmapFactory.decodeResource(context.getResources(),
                         R.drawable.ic_launcher);
                 simpleExoPlayerView.setDefaultArtwork(imageHolder);
@@ -195,13 +205,21 @@ public class RecipeStepDetailFragment extends Fragment implements ExoPlayer.Even
     public void updateVideoAndDescription(int position){
         descriptionTextView.setText(steps.get(position).getDescription());
         videoUrl = steps.get(position).getVideoURL();
+        imagerl = steps.get(position).getThumbnailURL();
         if (!videoUrl.isEmpty()){
             Uri uri = Uri.parse(videoUrl);
 
             MediaSource mediaSource = buildMediaSource(uri);
             player.prepare(mediaSource, true, false);
             player.setPlayWhenReady(true);
-        }else {
+        }
+        else if(!imagerl.isEmpty()){
+            Uri uri = Uri.parse(imagerl);
+
+            MediaSource mediaSource = buildMediaSource(uri);
+            player.prepare(mediaSource, true, false);
+            player.setPlayWhenReady(true);
+        } else {
             Bitmap imageHolder = BitmapFactory.decodeResource(context.getResources(),
                     R.drawable.ic_launcher);
             simpleExoPlayerView.setDefaultArtwork(imageHolder);

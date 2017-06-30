@@ -22,27 +22,26 @@
         <activity android:name=".RecipeDetailActivity" />
         <activity android:name=".RecipeStepDetailActivity" />
 
-        <receiver android:name=".widget.RecipeProviderWidget">
+        <provider
+            android:name=".data.RecipeContentProvider"
+            android:authorities="androiddegree.udacity.ememobong.bakingapp"
+            android:exported="true" />
+
+        <activity android:name=".RecipeIngredientsActivity" />
+
+        <receiver android:name=".BakingAppWidget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
 
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/recipe_provider_widget_info" />
+                android:resource="@xml/baking_app_widget_info" />
         </receiver>
-
-        <provider
-            android:name=".data.RecipeContentProvider"
-            android:authorities="androiddegree.udacity.ememobong.bakingapp"
-            android:exported="true" />
+        <service android:name=".service.GetRecipesWidgetService" />
         <service
-            android:name=".service.ListWidgetService"
+            android:name=".service.BakingAppListWidget"
             android:permission="android.permission.BIND_REMOTEVIEWS" />
-
-        <service android:name=".service.UpdateWithNextRecipeService" />
-
-        <activity android:name=".RecipeIngredientsActivity"></activity>
     </application>
 
 </manifest>

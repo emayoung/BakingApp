@@ -1,14 +1,19 @@
 package androiddegree.udacity.ememobong.bakingapp;
 
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Binder;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.test.espresso.IdlingResource;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -18,6 +23,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.List;
@@ -39,6 +45,8 @@ public class MainActivity extends AppCompatActivity {
     GridLayoutManager gridLayoutManager;
     List<Recipe> recipes;
 
+    final int MY_PERMISSIONS_REQUEST_ACCESS_NETWORK_STATE = 100;
+
     @BindView(R.id.recycler_recipe_cards) RecyclerView recyclerView;
     @BindView(R.id.empty_recycle_tv) TextView emptyTVForRecyclerView;
     @BindView(R.id.progress_bar) ProgressBar progressBar;
@@ -52,15 +60,40 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        if (!isNetworkAvailable()){
-            recyclerView.setVisibility(View.GONE);
-            progressBar.setVisibility(View.GONE);
-            emptyTVForRecyclerView.setVisibility(View.VISIBLE);
-            return;
-        }else{
-            recyclerView.setVisibility(View.GONE);
-            progressBar.setVisibility(View.VISIBLE);
+        if (Build.VERSION.SDK_INT >= 21) {
+            // check for permissions first
+            // Here, thisActivity is the current activity
+            if (ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.ACCESS_NETWORK_STATE)
+                    != PackageManager.PERMISSION_GRANTED) {
+
+                // Should we show an explanation?
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                        Manifest.permission.ACCESS_NETWORK_STATE)) {
+
+                } else {
+                    // No explanation needed, we can request the permission.
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{Manifest.permission.READ_CONTACTS},
+                            MY_PERMISSIONS_REQUEST_ACCESS_NETWORK_STATE);
+
+
+                }
+            }
+
+        } else {
+            // Implement this feature without material design
+            if (!isNetworkAvailable()){
+                recyclerView.setVisibility(View.GONE);
+                progressBar.setVisibility(View.GONE);
+                emptyTVForRecyclerView.setVisibility(View.VISIBLE);
+                return;
+            }else{
+                recyclerView.setVisibility(View.GONE);
+                progressBar.setVisibility(View.VISIBLE);
+            }
         }
+
 
         if (mIdlingResource != null) {
             mIdlingResource.setIdleState(false);
@@ -105,8 +138,36 @@ public class MainActivity extends AppCompatActivity {
       recipes = JsonUtils.readJsonStream(this);
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_ACCESS_NETWORK_STATE: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    if (!isNetworkAvailable()){
+                        recyclerView.setVisibility(View.GONE);
+                        progressBar.setVisibility(View.GONE);
+                        emptyTVForRecyclerView.setVisibility(View.VISIBLE);
+                        return;
+                    }else{
+                        recyclerView.setVisibility(View.GONE);
+                        progressBar.setVisibility(View.VISIBLE);
+                    }
+
+                } else {
+                    Toast.makeText(this, "You need to approve permission to use the app", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
+    }
+
     public void fetchDataFromServer(){
-        Log.d("TAG", "entered fetch method");
         ApiInterface apiService =
                 ApiClient.getClient().create(ApiInterface.class);
 

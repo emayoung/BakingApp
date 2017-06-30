@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -33,73 +34,89 @@ public class RecipeProviderWidget extends AppWidgetProvider {
 
     public static final String PARCEABLE_RECIPE_KEY = "parcelable";
 
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
-                                String nextWidgetInfo,
                                 Recipe recipe,
                                 int appWidgetId) {
-
+        Log.d("TAG", "we have entered method to update the widget");
         // Set the ListWidgetService intent to act as the adapter for the ListView
-
+       /* RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.recipe_listview_widget);
         Intent intent = new Intent(context, ListWidgetService.class);
-
-        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.recipe_listview_widget);
         views.setRemoteAdapter(R.id.widget_list_view, intent);
 
         Intent appIntent = new Intent(context, RecipeDetailActivity.class);
-        intent.putExtra(PARCEABLE_RECIPE_KEY, recipe);
+        appIntent.putExtra(PARCEABLE_RECIPE_KEY, recipe);
         PendingIntent appPendingIntent = PendingIntent.getActivity(context, 0, appIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         views.setPendingIntentTemplate(R.id.widget_list_view, appPendingIntent);
         // Handle empty gardens
         views.setEmptyView(R.id.widget_list_view, R.id.empty_widget_tv);
 
-        // Construct the RemoteViews object
-        // Instruct the widget manager to update the widget
-
         appWidgetManager.updateAppWidget(appWidgetId, views);
+        ComponentName thisAppWidget = new ComponentName(context.getPackageName(), RecipeProviderWidget.class.getName());
+        int[] appWidgetIds = appWidgetManager.getAppWidgetIds(thisAppWidget);
+        appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds,  R.id.widget_list_view);
+*/
+        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.recipe_provider_widget);
+        Intent appIntent = new Intent(context, RecipeDetailActivity.class);
+        appIntent.putExtra(PARCEABLE_RECIPE_KEY, recipe);
+
+        PendingIntent appPendingIntent = PendingIntent.getActivity(context, 0, appIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        views.setOnClickPendingIntent(R.id.ingredient_name, appPendingIntent);
+        appWidgetManager.updateAppWidget(appWidgetId, views);
+       Log.d("TAG", "we have called update on the widget");
+
+
     }
 
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @Override
     public void onAppWidgetOptionsChanged(Context context, AppWidgetManager appWidgetManager, int appWidgetId, Bundle newOptions) {
+        /*ComponentName thisAppWidget = new ComponentName(context.getPackageName(), RecipeProviderWidget.class.getName());
+        int[] appWidgetIds = appWidgetManager.getAppWidgetIds(thisAppWidget);
+        Log.d("TAG", "we have called notifydatasetchanged for app widget");
+        appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds,  R.id.widget_list_view);
         UpdateWithNextRecipeService.startActionWaterPlants(context);
         super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions);
+*/
+    }
 
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        if (intent.getAction().equals(
+                AppWidgetManager.ACTION_APPWIDGET_UPDATE)) {
+
+            AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+
+            ComponentName thisAppWidget = new ComponentName(context.getPackageName(), RecipeProviderWidget.class.getName());
+            int[] appWidgetIds = appWidgetManager.getAppWidgetIds(thisAppWidget);
+            Log.d("TAG", "we have called notifydatasetchanged for app widget");
+            appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds,  R.id.widget_list_view);
+
+
+        }
     }
 
     public static void updateWidgetWithNextInfo(Context context, AppWidgetManager appWidgetManager,
                                                 int[] nextWidgetInfo,
                                                 List<Recipe> recipes,
                                                 int[] appWidgetIds) {
-
-
-//        extract and build the next info to be displayed in the widget
+        Log.d("TAG", "we have entered updatewidgetwithNextInfo for app widget");
+       //        extract and build the next info to be displayed in the widget
         //this bit of code is redundant for now since the app logic has changed keeping it for review purposes
         int nextRecipeId = nextWidgetInfo[0];
-        int nextRecipeStepId = nextWidgetInfo[1];
-        String nextWidgetInfoStr = "";
-        Recipe nextRecipe = null;
-
-        for(Recipe recipe: recipes){
-            if (recipe.getId() == nextRecipeId){
-                nextRecipe = recipe;
-                List<PreparationSteps> steps = recipe.getSteps();
-                nextWidgetInfoStr = recipe.getRecipeName() + " \n Next Steps: ";
-                for(PreparationSteps step: steps){
-                    if(nextRecipeStepId == step.getId()){
-                        nextWidgetInfoStr = nextWidgetInfoStr + step.getShortDescription();
-                    }
-                }
-            }
-        }
+        Recipe nextRecipe = recipes.get(nextRecipeId);
 
         for (int appWidgetId : appWidgetIds) {
-            updateAppWidget(context, appWidgetManager,nextWidgetInfoStr, nextRecipe, appWidgetId);
+            Log.d("TAG", "we have entered the crazy for loop");
+            updateAppWidget(context, appWidgetManager, nextRecipe, appWidgetId);
         }
     }
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
+      /*  Intent initialUpdateIntent = new Intent(
+                AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+        initialUpdateIntent
+                .setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+        context.sendBroadcast(initialUpdateIntent);*/
         // There may be multiple widgets active, so update all of them
         UpdateWithNextRecipeService.startActionWaterPlants(context);
     }

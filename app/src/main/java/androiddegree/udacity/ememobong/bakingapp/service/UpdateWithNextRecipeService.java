@@ -13,17 +13,23 @@ import java.util.List;
 
 import androiddegree.udacity.ememobong.bakingapp.R;
 import androiddegree.udacity.ememobong.bakingapp.model.Recipe;
+import androiddegree.udacity.ememobong.bakingapp.networking.ApiClient;
+import androiddegree.udacity.ememobong.bakingapp.networking.ApiInterface;
 import androiddegree.udacity.ememobong.bakingapp.utils.DataBaseUtils;
 import androiddegree.udacity.ememobong.bakingapp.utils.JsonUtils;
 import androiddegree.udacity.ememobong.bakingapp.widget.RecipeProviderWidget;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
- * Created by Bless on 6/23/2017.
+ * this class is now defunct keeping it for reference
  */
 
 public class UpdateWithNextRecipeService extends IntentService{
 
     List<Recipe> recipes;
+    Context mContext;
 
     public static final String ACTION_WATER_PLANTS = "androiddegree.udacity.ememobong.bakingapp.action.update_widget_with_next_recipe";
     public UpdateWithNextRecipeService() {
@@ -32,7 +38,7 @@ public class UpdateWithNextRecipeService extends IntentService{
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-        Log.d("TAG", "entered on handle intent of the servide");
+        mContext = this;
         if (intent != null) {
             final String action = intent.getAction();
             if (ACTION_WATER_PLANTS.equals(action)) {
@@ -45,30 +51,41 @@ public class UpdateWithNextRecipeService extends IntentService{
         intent.setAction(ACTION_WATER_PLANTS);
         context.startService(intent);
 
-        Log.d("TAG", "service has been started to update the widget with the next info");
     }
     public void handleUpdateNextWidget(){
 //        get the next information to be displayed in the widget
-        try {
-            readJsonStream();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
-        int[] nextWidgetInfo = DataBaseUtils.nextRecipeToWatch(this, recipes);
-
-        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
-        int[] appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(this, RecipeProviderWidget.class));
-        //Now update all widgets
-        //Trigger data update to handle the GridView widgets and force a data refresh
-        appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widget_list_view);
-        Log.d("TAG", "we have called notifydatasetchanged for app widget");
-
-        RecipeProviderWidget.updateWidgetWithNextInfo(this, appWidgetManager, nextWidgetInfo, recipes, appWidgetIds);
+        fetchDataFromServer();
     }
 
-    private void readJsonStream () throws IOException{
-        recipes = JsonUtils.readJsonStream(this);
+
+    public void fetchDataFromServer(){
+        Log.d("TAG", "entered fetch method");
+        ApiInterface apiService =
+                ApiClient.getClient().create(ApiInterface.class);
+
+        Call<List<Recipe>> call = apiService.getTopRatedMovies();
+
+        call.enqueue(new Callback<List<Recipe>>() {
+
+            @Override
+            public void onResponse(Call<List<Recipe>> call, Response<List<Recipe>> response) {
+                Log.d("TAG", "response from server for list view is successful");
+                recipes = response.body();
+
+                int[] nextWidgetInfo = DataBaseUtils.nextRecipeToWatch(mContext, recipes);
+
+                AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(mContext);
+                int[] appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(mContext, RecipeProviderWidget.class));
+                //Now update all widgets
+                //Trigger data update to handle the GridView widgets and force a data refresh
+                RecipeProviderWidget.updateWidgetWithNextInfo(mContext, appWidgetManager, nextWidgetInfo, recipes, appWidgetIds);
+            }
+
+            @Override
+            public void onFailure(Call<List<Recipe>> call, Throwable t) {
+                // Log error here since request failed
+                Log.e("TAG", t.toString() + "f");
+            }
+        });
     }
 }

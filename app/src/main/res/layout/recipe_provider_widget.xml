@@ -13,5 +13,4 @@
         android:textSize="@dimen/primary_text_size"
         tools:text="Recipe Ingredient"
         />
-
 </LinearLayout>
